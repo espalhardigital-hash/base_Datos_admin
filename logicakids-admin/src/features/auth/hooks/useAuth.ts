@@ -4,10 +4,14 @@ import { ENDPOINTS } from "../../../api/endpoints";
 export const useAuth = () => {
   const login = async (data: any) => {
     try {
-      // Intentamos hacer login con la API
-      const response = await apiClient.post(ENDPOINTS.AUTH.LOGIN, {
-        username: data.username,
-        password: data.password,
+      const params = new URLSearchParams();
+      params.append("username", data.username);
+      params.append("password", data.password);
+
+      const response = await apiClient.post(ENDPOINTS.AUTH.LOGIN, params, {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
       });
       
       const token = response.data.access_token || response.data.token;

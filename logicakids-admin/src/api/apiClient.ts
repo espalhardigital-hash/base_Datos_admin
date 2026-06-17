@@ -31,5 +31,5 @@ apiClient.interceptors.response.use(res => res, (error: AxiosError) => {
     localStorage.removeItem("logicakids_token");
     if (!window.location.pathname.includes("/login")) window.location.href = `/login?redirectTo=${encodeURIComponent(window.location.pathname)}`;
   }
-  return Promise.reject({ status: status || 500, message: (error.response?.data as any)?.message || error.message });
+  return Promise.reject({ status: status || 500, message: (error.response?.data as any)?.detail || (error.response?.data as any)?.message || error.message });
 });
