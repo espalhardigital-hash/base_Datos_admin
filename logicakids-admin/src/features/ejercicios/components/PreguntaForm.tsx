@@ -5,7 +5,7 @@ import { preguntaSchema, PreguntaInput } from "../schemas/preguntaSchema";
 import { OperacionEnum, TipoPreguntaEnum } from "../../../types/db-enums";
 
 export const PreguntaForm: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
-  const { register, control, handleSubmit, setValue, watch, reset } = useForm<PreguntaInput>({
+  const { register, control, handleSubmit, setValue, watch, reset } = useForm<any>({
     resolver: zodResolver(preguntaSchema),
     defaultValues: { operacion: OperacionEnum.SUMA, tipo_pregunta: TipoPreguntaEnum.MULTIPLE_OPCION, alternativas: [] }
   });
