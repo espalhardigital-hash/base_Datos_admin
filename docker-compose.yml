@@ -3,7 +3,7 @@ version: '3.8'
 services:
   admin-frontend:
     build: 
-      context: .
+      context: ./logicakids-admin
       dockerfile: Dockerfile
     container_name: logicakids-admin-ui
     restart: always
