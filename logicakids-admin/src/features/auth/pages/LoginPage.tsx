@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuth } from "../hooks/useAuth";
-import { Lock, User, AlertCircle, Loader2 } from "lucide-react";
+import { Lock, User, AlertCircle, Loader2, Eye, EyeOff } from "lucide-react";
 
 const loginFormSchema = z.object({
   username: z.string().min(1, "El usuario es requerido"),
@@ -16,6 +16,7 @@ export const LoginPage: React.FC = () => {
   const { login } = useAuth();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormInput>({
     resolver: zodResolver(loginFormSchema),
@@ -58,10 +59,10 @@ export const LoginPage: React.FC = () => {
           <div className="space-y-4">
             
             <div className="space-y-1">
-              <label className="text-xs font-bold uppercase text-slate-500">Usuario</label>
+              <label className="text-xs font-bold uppercase text-slate-500">Usuario / Email</label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><User className="h-5 w-5" /></span>
-                <input type="text" disabled={isLoggingIn} className="block w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 outline-none focus:border-indigo-600 focus:bg-white" placeholder="amilcar_admin" {...register("username")} />
+                <input type="text" disabled={isLoggingIn} className="block w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 outline-none focus:border-indigo-600 focus:bg-white" placeholder="amilcar@gmail.com" {...register("username")} />
               </div>
               {errors.username && <p className="text-xs text-red-600">{errors.username.message}</p>}
             </div>
@@ -70,7 +71,10 @@ export const LoginPage: React.FC = () => {
               <label className="text-xs font-bold uppercase text-slate-500">Contraseña</label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><Lock className="h-5 w-5" /></span>
-                <input type="password" disabled={isLoggingIn} className="block w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 outline-none focus:border-indigo-600 focus:bg-white" placeholder="••••••••" {...register("password")} />
+                <input type={showPassword ? "text" : "password"} disabled={isLoggingIn} className="block w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-12 outline-none focus:border-indigo-600 focus:bg-white" placeholder="••••••••" {...register("password")} />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600">
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
               </div>
               {errors.password && <p className="text-xs text-red-600">{errors.password.message}</p>}
             </div>
