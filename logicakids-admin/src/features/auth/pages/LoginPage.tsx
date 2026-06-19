@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuth } from "../hooks/useAuth";
-import { Lock, User, AlertCircle, Loader2, Eye, EyeOff } from "lucide-react";
+import { Lock, User, AlertCircle, Loader2, Eye, EyeOff, Settings, RotateCcw } from "lucide-react";
 
 const loginFormSchema = z.object({
   username: z.string().min(1, "El usuario es requerido"),
@@ -17,6 +17,13 @@ export const LoginPage: React.FC = () => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  
+  // Ajustes de API dinámicos
+  const [showApiSettings, setShowApiSettings] = useState(false);
+  const [customApiUrl, setCustomApiUrl] = useState(() => {
+    return localStorage.getItem("logicakids_api_url") || "";
+  });
+  const currentBaseUrl = localStorage.getItem("logicakids_api_url") || import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api";
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormInput>({
     resolver: zodResolver(loginFormSchema),
@@ -32,6 +39,25 @@ export const LoginPage: React.FC = () => {
     } finally {
       setIsLoggingIn(false);
     }
+  };
+
+  const handleSaveApiUrl = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (customApiUrl.trim() === "") {
+      localStorage.removeItem("logicakids_api_url");
+    } else {
+      let sanitizedUrl = customApiUrl.trim();
+      if (!sanitizedUrl.endsWith("/api")) {
+        sanitizedUrl = sanitizedUrl.endsWith("/") ? `${sanitizedUrl}api` : `${sanitizedUrl}/api`;
+      }
+      localStorage.setItem("logicakids_api_url", sanitizedUrl);
+    }
+    window.location.reload();
+  };
+
+  const handleResetApiUrl = () => {
+    localStorage.removeItem("logicakids_api_url");
+    window.location.reload();
   };
 
   return (
@@ -51,7 +77,14 @@ export const LoginPage: React.FC = () => {
         {loginError && (
           <div className="flex items-start gap-3 rounded-lg bg-red-50 p-4 text-sm text-red-800">
             <AlertCircle className="h-5 w-5 shrink-0 text-red-600" />
-            <p className="font-semibold">{loginError}</p>
+            <div className="flex-1">
+              <p className="font-semibold">{loginError}</p>
+              {loginError.toLowerCase().includes("network error") && (
+                <p className="text-xs text-red-600 mt-1">
+                  Parece un problema de conexión con el servidor. Verifica el endpoint de la API más abajo.
+                </p>
+              )}
+            </div>
           </div>
         )}
 
@@ -85,7 +118,58 @@ export const LoginPage: React.FC = () => {
             {isLoggingIn ? <><Loader2 className="h-5 w-5 animate-spin" /> Conectando...</> : "Ingresar al Sistema"}
           </button>
         </form>
+
+        {/* Configuración de Endpoint API */}
+        <div className="pt-4 border-t border-slate-100 dark:border-slate-700">
+          <button
+            type="button"
+            onClick={() => setShowApiSettings(!showApiSettings)}
+            className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition-colors mx-auto"
+          >
+            <Settings className="h-3.5 w-3.5" />
+            {showApiSettings ? "Ocultar ajustes de servidor" : "Configurar servidor API"}
+          </button>
+
+          {showApiSettings && (
+            <form onSubmit={handleSaveApiUrl} className="mt-4 space-y-3 bg-slate-50 p-4 rounded-xl dark:bg-slate-900/50">
+              <div>
+                <label className="text-[10px] font-bold uppercase text-slate-500">API Endpoint Actual</label>
+                <div className="text-[11px] font-mono text-slate-600 break-all dark:text-slate-400 mt-0.5">
+                  {currentBaseUrl}
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-slate-500">Nuevo Endpoint</label>
+                <input
+                  type="text"
+                  placeholder="https://mi-servidor.com/api"
+                  className="block w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-xs outline-none focus:border-indigo-600"
+                  value={customApiUrl}
+                  onChange={(e) => setCustomApiUrl(e.target.value)}
+                />
+              </div>
+              <div className="flex gap-2 pt-1">
+                <button
+                  type="submit"
+                  className="flex-1 py-1.5 bg-indigo-600 text-white font-bold rounded-lg text-xs hover:bg-indigo-700 transition-colors"
+                >
+                  Conectar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResetApiUrl}
+                  className="px-2 py-1.5 bg-slate-200 text-slate-700 font-bold rounded-lg text-xs hover:bg-slate-300 transition-colors dark:bg-slate-800 dark:text-slate-300"
+                  title="Restablecer por defecto"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+
       </div>
     </div>
   );
 };
+
